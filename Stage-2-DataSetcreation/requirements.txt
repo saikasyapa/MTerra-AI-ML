@@ -1,0 +1,4 @@
+networkx==3.4.2
+numpy==1.26.4
+boto3==1.35.47
+opencv-python-headless==4.10.0.84
