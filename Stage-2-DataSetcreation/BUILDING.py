@@ -3,7 +3,8 @@ import os
 import logging
 import networkx as nx
 from pathlib import Path
-from common import read_zip, generate_line_mask, get_masked, TARGET_SHAPE, IN_DIR, S3_BUCKET_NAME, S3_MAIN_DIR, upload_image_to_s3, s3_client
+from common import (read_zip, generate_line_mask, get_masked, TARGET_SHAPE, IN_DIR, S3_BUCKET_NAME, S3_MAIN_DIR,
+                    upload_image_to_s3, s3_client)
 from tempfile import gettempdir
 
 # OUT_DIR = r'D:\DATA\RETRAINING\building_masks'
