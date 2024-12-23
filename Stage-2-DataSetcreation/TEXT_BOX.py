@@ -9,11 +9,14 @@ import boto3
 import numpy as np
 import pycococreatortools
 from io import BytesIO
+from tempfile import gettempdir
+import os.path
 
 S3_BUCKET_NAME = "kadaster-magnasoft"
 S3_MAIN_DIR = "Kadaster-AI-ML"
 IN_DIR = "vector-data"
-OUT_DIR = r'retrain_data/textbox/label'
+OUT_DIR = "retrain_data/textbox/label"
+S3_LOG_DIR = "logs"
 
 s3_client = boto3.client('s3')
 
@@ -22,7 +25,22 @@ TEST_SPLIT = 15
 VALIDATION_SPLIT = 15
 
 TARGET_SHAPE = (1664, 1024)
-# IN_DIR = r'D:\DATA\Json Files'
+
+# Get a cross-platform temporary directory and define lof file path
+temp_dir = gettempdir() # This dynamically retrieves the temp directory (e.g., /tmp on Linux, C:\Temp on Windows)
+log_file_path = os.path.join(temp_dir, "textbox_generator.log")
+
+# Ensure the directory for the log file exists
+os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
+# Set up logging to a local file
+file_handler = logging.FileHandler(log_file_path)
+stream_handler = logging.StreamHandler()
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s;%(levelname)s;%(message)s',
+    handlers=[file_handler, stream_handler]
+)
+
 
 os.makedirs(OUT_DIR, exist_ok=True)
 
@@ -246,12 +264,22 @@ def read_zip(s3_bucket,s3_key, measurement_masks=True, parcel_number_masks=True,
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format='%(asctime)s;%(levelname)s;%(message)s')
 
-    response = s3_client.list_objects_v2(Bucket=S3_BUCKET_NAME, Prefix =f"{S3_MAIN_DIR}/{IN_DIR}")
-    for obj in response.get('Contents', []):
-            s3_key = obj['Key']
-            if s3_key.endswith('.zip'): # Process only ZIP files
-                logging.info(f"Processing ZIP files from S3: {s3_key}")
-                read_zip(S3_BUCKET_NAME, s3_key)
+    try:
+        response = s3_client.list_objects_v2(Bucket=S3_BUCKET_NAME, Prefix =f"{S3_MAIN_DIR}/{IN_DIR}")
+        if 'Contents' not in response:
+            logging.error(f"No contents found in the {S3_MAIN_DIR}")
+        else:
+            for obj in response.get('Contents', []):
+                    s3_key = obj['Key']
+                    if s3_key.endswith('.zip'): # Process only ZIP files
+                        logging.info(f"Processing ZIP files from S3: {s3_key}")
+                        try:
+                            read_zip(S3_BUCKET_NAME, s3_key)
+                            logging.info(f"Successfully processed ZIP file: {s3_key}")
+                        except Exception as e:
+                            logging.error(f"Failed to process zip file {s3_key}: {e}")
+    except Exception as e:
+        logging.error(f"Error listing or processing ZIP files from S3: {e}")
 
     coco_output['categories'] = [{
         'id': category_id,
@@ -290,5 +318,26 @@ if __name__ == '__main__':
         Body=json.dumps({**coco_output, 'images': test.tolist()})
     )
     logging.info(f"Test annotations saved to S3: {test_key}")
+
+    # Upload the log file to S3 after processing is done
+    try:
+        s3_log_key=f"{S3_MAIN_DIR}/{S3_LOG_DIR}/textbox_generator.txt"
+        logging.info(f"Uploading log file to S3: {s3_log_key}")
+        
+        # Upload the log file to S3
+        with open(log_file_path, 'rb') as log_file:
+            s3_client.put_object(Body=log_file, Bucket=S3_BUCKET_NAME, Key=s3_log_key)
+        logging.info("log file uploaded successfully.")
+    
+    except Exception as e:
+        logging.error(f"Error uploading log file to S3: {e}")
+    
+    finally:
+        # Close the logging file handler
+        file_handler.close()
+        logging.getLogger().removeHandler(file_handler)
+        if os.path.exists(log_file_path):
+            os.remove(log_file_path)
+            logging.info("Cleaned up the local log file.")
 
 
