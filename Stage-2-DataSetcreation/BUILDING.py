@@ -66,17 +66,17 @@ if __name__ == '__main__':
         # listing ZIP files in the S3 Bucket
         response = s3_client.list_objects_v2(Bucket=S3_BUCKET_NAME, Prefix=f"{S3_MAIN_DIR}/{IN_DIR}")
         if 'Contents' not in response:
-            logging.error(f"No contents found in the {S3_MAIN_DIR}")
+            logging.error(f"No contents found in the {S3_MAIN_DIR}/{S3_SUB_DIR}")
         else:
             for obj in response.get('Contents', []):
                 s3_key = obj['Key']
                 if s3_key.endswith('.zip'):  # Process only ZIP files
                     logging.info(f"process ZIP file in S3: {s3_key}")
-                try:
-                    read_zip(S3_BUCKET_NAME,s3_key,generate_building_from_json)
-                    logging.info(f"Successfully processed ZIP file: {s3_key}")
-                except Exception as e:
-                    logging.error(f"Failed to process zip file {s3_key}: {e}")
+                    try:
+                        read_zip(S3_BUCKET_NAME,s3_key,generate_building_from_json)
+                        logging.info(f"Successfully processed ZIP file: {s3_key}")
+                    except Exception as e:
+                        logging.error(f"Failed to process zip file {s3_key}: {e}")
     except Exception as e:
         logging.error(f"Error listing or processing ZIP files: {e}")
 
