@@ -23,8 +23,12 @@ line_sub_2 = "lines_Detection"
 building_sub_2 = "buildings_Detection"
 border_sub_2 ="borders_Detection"
 
+# Text Box path variables
+textbox_ground = "textbox_ground_truth"
+textbox_predicted = "textbox_predicted"
 
-
+OUT_DIR_TEXT_BOX=f"{S3_MAIN_DIR}/{OUT_DIR}/{textbox_ground}/textbox_ground"
+OUT_DIR_TEXT_BOX1=f"{S3_MAIN_DIR}/{OUT_DIR}/{textbox_predicted}/textbox_predicted"
 
 # Subdirectories for Manual masks
 lines_dir_1 = f"{S3_MAIN_DIR}/{OUT_DIR}/{line_sub_1}/lines_GroundTruth"
