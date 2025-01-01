@@ -13,7 +13,7 @@ S3_BUCKET_NAME = "kadaster-magnasoft"
 S3_MAIN_DIR = "Kadaster-AI-ML"
 IN_DIR = "vector-data"
 OUT_DIR = "data_evaluation"
-S3_LOG_DIR = "logs"
+S3_LOG_DIR = "logs/dataevaluation"
 
 line_sub_1 = "lines_GroundTruth"
 building_sub_1 = "buildings_GroundTruth"

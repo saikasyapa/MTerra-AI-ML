@@ -13,6 +13,7 @@ THICKNESS = 8
 S3_BUCKET_NAME = "kadaster-magnasoft"
 S3_MAIN_DIR = "Kadaster-AI-ML"
 IN_DIR = "vector-data"
+S3_LOG_DIR = "logs/datasetcreation"
 
 
 s3_client = boto3.client('s3')

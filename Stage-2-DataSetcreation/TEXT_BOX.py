@@ -11,12 +11,13 @@ import pycococreatortools
 from io import BytesIO
 from tempfile import gettempdir
 import os.path
+from common import S3_LOG_DIR
 
 S3_BUCKET_NAME = "kadaster-magnasoft"
 S3_MAIN_DIR = "Kadaster-AI-ML"
 IN_DIR = "vector-data"
 OUT_DIR = "retrain_data/textbox/label"
-S3_LOG_DIR = "logs"
+
 
 s3_client = boto3.client('s3')
 

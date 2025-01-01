@@ -1,13 +1,13 @@
 # border_mask_generator.py
 import logging
 from common import (read_zip, generate_line_mask, get_masked, TARGET_SHAPE, IN_DIR, S3_BUCKET_NAME, S3_MAIN_DIR,
-                    upload_image_to_s3, s3_client)
+                    upload_image_to_s3, s3_client, S3_LOG_DIR)
 from tempfile import gettempdir
 import os.path
 
 # S3 Configuration
 S3_SUB_DIR = "retrain_data/border/label"
-S3_LOG_DIR = "logs"
+
 
 # Get a cross-platform temporary directory and define lof file path
 temp_dir = gettempdir() # This dynamically retrieves the temp directory (e.g., /tmp on Linux, C:\Temp on Windows)
